@@ -1,0 +1,219 @@
+{
+  "name": "n8n Sound Cloud Raper",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "006b81dc-2158-4ebe-911a-03e7b046b975",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1YR7_gtqYljwmIF9SgOHr8k0cm1XQysnCAbVMaBN_cwc",
+          "mode": "list",
+          "cachedResultName": "n8n Music Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YR7_gtqYljwmIF9SgOHr8k0cm1XQysnCAbVMaBN_cwc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YR7_gtqYljwmIF9SgOHr8k0cm1XQysnCAbVMaBN_cwc/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "todo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        256,
+        0
+      ],
+      "id": "66562155-1ca1-432a-a09c-203e51629db0",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0XjN40Tfyjv0RaNO",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://udioapi.pro/api/v2/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR-API-KEY-HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "gpt_description_prompt",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "make_instrumental",
+              "value": "false"
+            },
+            {
+              "name": "model",
+              "value": "chirp-v3-5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "524f2e30-09e7-474d-a82e-85a01de4f160",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "b3723874-17f3-48f9-bd86-c46bbc7655c7",
+      "name": "Wait",
+      "webhookId": "6782c1de-891b-4b17-aba9-1ab365c4e53a"
+    },
+    {
+      "parameters": {
+        "url": "=https://udioapi.pro/api/v2/feed?workId={{ $json.workId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "bd3610d2-c226-4d26-b3d0-e9e34d698be9",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "sendTo": "pakasan308@coursora.com",
+        "subject": "HERE IS YOUR AI SONG!!",
+        "message": "=Url to your song:  {{ $json.data.response_data[0].audio_url }}\n\nUrl to large image: {{ $json.data.response_data[0].image_large_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "59d958b1-7331-4c09-8ef7-c798bf5ba67a",
+      "name": "Send a message",
+      "webhookId": "a53947fd-bd87-44c5-9178-639023457670",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Uk2L3ARv4U1OFpYi",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "752cc226-633e-4405-ab8a-693c38cb7c35",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "87d9245b9b28f2e4d3084d25a9fbca62db1d805abb31c15c39b930004bc6f1d6"
+  },
+  "id": "NkwsqG45AARG2j5G",
+  "tags": []
+}
